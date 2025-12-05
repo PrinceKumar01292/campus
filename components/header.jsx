@@ -1,5 +1,5 @@
 "use client"
-import { SignInButton,UserButton } from '@clerk/nextjs'
+import { SignInButton,useAuth,UserButton } from '@clerk/nextjs'
 import Image from 'next/image'
 import Link from 'next/link'
 import React, { useState } from 'react'
@@ -7,7 +7,13 @@ import { Button } from './ui/button'
 import { Authenticated, Unauthenticated } from 'convex/react'
 import { BarLoader } from "react-spinners"
 import { useStoreUser } from '@/hooks/use-store-user'
-import { Building, Plus, Ticket } from 'lucide-react'
+import { Building, Crown, Plus, Ticket } from 'lucide-react'
+// import { OnboardingModal } from './onboarding-modal'
+import OnboardingModal from './onboarding-modal'
+import { useOnboarding } from '@/hooks/use-onboarding'
+import SearchLocationBar from './search-location-bar'
+import { Badge } from './ui/badge'
+import UpgradeModal from './upgrade-model'
 
 
 const Header = () => {
@@ -16,29 +22,49 @@ const Header = () => {
 
   const [showUpgradeModal, setShowUpgradeModal]=useState(false);
 
+  const { showOnboarding, handleOnboardingComplete, handleOnboardingSkip} = useOnboarding();
+
+  const { has } = useAuth();
+  const hasPro =has?.({ plan: "pro"}); 
+
   return (
         <>
         <nav className=' fixed top-0 left-0 right-0 bg-background/80 backdrop-blur-xl z-20 border-b'>
             <div className='max-w-7xl mx-auto px-6 py-4 flex items-center justify-between'>
                 {/* logo */}
                 <Link href={"/"} className=' flex items-center'>
-                <Image src="/spott.png" 
-                alt="Spott logo" 
+                <Image src="/CN.png" 
+                alt="Campus Connect logo" 
                 width={500} 
                 height={500} 
                 className=' w-full h-11' 
                 priority
                 />
+                {/* Pro badge */}
+
+                {hasPro && (
+                  <Badge className="bg-linear-to-r from-pink-500 to-orange-500 gap-1 text-white ml-3">
+                    <Crown className="w-3 h-3" />
+                    Pro
+                  </Badge>
+                )}
                 </Link>
 
                 {/* Search & location-Desktop only */}
+                <div className="hidden md:flex flex-1 justify-center">
+                   <SearchLocationBar/>
+                </div>
 
                 {/* Right Side Action */}
 
                 <div className=' flex items-center '>
-                      <Button variant={"ghost"} size="sm" onClick={()=>setShowUpgradeModal(true)}>
+                     {!hasPro && <Button 
+                        variant={"ghost"} 
+                        size="sm" 
+                        onClick={()=>setShowUpgradeModal(true)}
+                      >
                         Pricing
-                      </Button>
+                      </Button>}
 
                        <Button variant="ghost" size="sm" asChild className={"mr-2"}>
                           <Link href="/explore">Explore</Link>
@@ -76,8 +102,12 @@ const Header = () => {
             </Unauthenticated>
             
                 </div>
+                 
             </div>
             {/* Mobile Serch & location-Below Header */}
+             <div className="md:hidden border-t px-3 py-3">
+                   <SearchLocationBar/>
+                </div>
 
             {/* Loader */}
             {isLoading && <div className=' absolute bottom-0 left-0 w-full'>
@@ -86,7 +116,20 @@ const Header = () => {
         </nav>
 
         {/* Models */}
-        </>
+       <OnboardingModal
+          isOpen={showOnboarding}
+          onClose={handleOnboardingSkip}
+          onComplete={handleOnboardingComplete}
+       />
+
+       <UpgradeModal
+          isOpen={showUpgradeModal}
+          onClose={()=> setShowUpgradeModal(false)}
+          trigger="header"
+        />
+        
+
+      </>
   )
 }
 
