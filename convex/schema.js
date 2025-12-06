@@ -18,7 +18,7 @@ export default defineSchema({
             v.object({
                 city: v.string(),
                 state: v.optional(v.string()),
-                country: v.string(),
+               country: v.optional(v.string()),
             })
         ),
         interests: v.optional(v.array(v.string())), //Min 3 categories
