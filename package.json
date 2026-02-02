@@ -46,6 +46,7 @@
     "zod": "^4.1.13"
   },
   "devDependencies": {
+    "@netlify/plugin-nextjs": "^5.15.7",
     "@tailwindcss/postcss": "^4",
     "eslint": "^9",
     "eslint-config-next": "16.0.4",
